@@ -66,7 +66,7 @@ The RAG pipeline consists of the following steps:
 ## Live Notebook
 
 👉 **Colab Notebook Link:**  
-*(Add your public Colab link here before submission)*
+*https://colab.research.google.com/drive/1mQHNp_0UkOAkRuen8sP431HG-aRe6asp#scrollTo=ULPYRAkvO1XB*
 
 ---
 
