@@ -1,8 +1,8 @@
 # RAG Assignment – SEC 10-K Question Answering
 
-This repository contains a Retrieval-Augmented Generation (RAG) system designed to answer factual questions from Apple and Tesla SEC Form 10-K filings. The system retrieves relevant document chunks, optionally re-ranks them, and generates document-grounded answers using an open-source large language model.
+This repository contains a Retrieval-Augmented Generation (RAG) system built to answer factual questions using Apple and Tesla SEC Form 10-K filings. The system retrieves relevant document context, re-ranks results, and generates grounded answers using an open-source large language model.
 
-The solution is implemented as a runnable Google Colab notebook.
+The solution is implemented as a runnable **Google Colab notebook**.
 
 ---
 
@@ -11,91 +11,80 @@ The solution is implemented as a runnable Google Colab notebook.
 rag_assignment/
 ├── design_report.md # Concept note describing system design
 ├── requirements.txt # Python dependencies
-├── rag_assignment.ipynb # Runnable Colab notebook
+├── rag_assignment_final.ipynb # Runnable Colab notebook
 └── README.md
+
 
 
 ---
 
-## System Overview
+## System Architecture
 
-The RAG pipeline consists of the following steps:
+The RAG pipeline consists of the following stages:
 
-1. **PDF Parsing**
-   - Apple and Tesla 10-K PDFs are uploaded in Colab
-   - Text is extracted page by page using `pypdf`
+### 1. PDF Ingestion
+- Apple and Tesla 10-K PDFs are uploaded interactively in Colab.
+- Text is extracted page-by-page using `pypdf`.
 
-2. **Chunking**
-   - Each page is split into overlapping text chunks
-   - Chunk size and overlap are chosen to preserve context
-   - Page-level metadata is retained for citations
+### 2. Chunking
+- Pages are split into overlapping chunks (1000 chars, 150 overlap).
+- Page-level metadata is preserved for citation purposes.
 
-3. **Embedding & Indexing**
-   - Chunks are embedded using `BAAI/bge-small-en-v1.5`
-   - FAISS is used to perform vector similarity search
+### 3. Embedding & Vector Search
+- Chunk embeddings generated using `BAAI/bge-small-en-v1.5`.
+- FAISS `IndexFlatL2` is used for similarity search.
+- Top 15 candidate chunks retrieved per query.
 
-4. **Re-ranking**
-   - Retrieved chunks are re-ranked using `BAAI/bge-reranker-base`
-   - Improves relevance for numerical and factual queries
+### 4. Re-ranking
+- Retrieved chunks are re-ranked using `BAAI/bge-reranker-base`.
+- Top 5 chunks are selected for answer generation.
 
-5. **Answer Generation**
-   - Uses `mistralai/Mistral-7B-Instruct-v0.2`
-   - Loaded with 4-bit quantization for Colab compatibility
-   - Prompt enforces strict document-grounded answers
+### 5. Answer Generation
+- Uses `mistralai/Mistral-7B-Instruct-v0.2` with 4-bit quantization.
+- Strict prompt enforces document-only answers with citations.
+- Deterministic generation reduces hallucination.
 
-6. **Out-of-Scope Handling**
-   - If the answer is not present in the documents, the system returns:
-     > *"This question cannot be answered based on the provided documents."*
+### 6. Out-of-Scope Handling
+If an answer is not present in the provided documents, the system returns:
+> **"This question cannot be answered based on the provided documents."**
 
 ---
 
 ## Running the Notebook (Google Colab)
 
-1. Open the notebook in Google Colab  
-2. Run the first cell to install dependencies  
-3. Upload the following files when prompted:
+1. Open the notebook in Google Colab
+2. Run Cell 1 to install dependencies
+3. Upload:
    - `apple_doc.pdf`
    - `tesla_doc.pdf`
 4. Run all cells to:
-   - Build the vector index
-   - Answer the evaluation questions
+   - Build the FAISS index
+   - Answer evaluation questions
    - Generate final JSON output
 
 ---
 
-## Live Notebook
+## Live Notebook Link
 
-👉 **Colab Notebook Link:**  
-*https://colab.research.google.com/drive/1mQHNp_0UkOAkRuen8sP431HG-aRe6asp#scrollTo=ULPYRAkvO1XB*
-
----
-
-## Design Report
-
-A short concept note describing:
-- Chunking strategy
-- Embedding and LLM choices
-- Re-ranking approach
-- Out-of-scope handling
-
-is available in [`design_report.md`](design_report.md).
+👉 **Colab Notebook:**  
+(https://colab.research.google.com/drive/1mQHNp_0UkOAkRuen8sP431HG-aRe6asp#scrollTo=ULPYRAkvO1XB)
 
 ---
 
-## Dependencies
+## Design Documentation
 
-All required Python libraries are listed in `requirements.txt`.
+Detailed system design decisions are documented in  
+📄 [`design_report.md`](design_report.md)
 
 ---
 
 ## Notes & Limitations
-
-- Financial tables are parsed via text extraction and may be sensitive to formatting.
-- The system prioritizes correctness and document grounding over speculative answers.
-- No external knowledge is used beyond the provided SEC filings.
+- Financial tables are parsed as raw text.
+- Numerical precision depends on PDF extraction quality.
+- No external data or tools are used beyond the provided filings.
 
 ---
 
 ## Author
+**Asmath Shaik**
 
-Asmath Shaik
